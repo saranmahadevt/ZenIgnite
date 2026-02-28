@@ -1,0 +1,65 @@
+/* ============================================================
+   ZenIgnite — Custom MkDocs Material Theme Colors
+   Primary  : #FFE500 (Zen Yellow)
+   Secondary: #000000 (Black)
+   ============================================================ */
+
+/* ---------- Primary Color (Header / Navbar / Active elements) ---------- */
+:root {
+  --md-primary-fg-color:        #FFE500;
+  --md-primary-fg-color--light: #FFE500;
+  --md-primary-fg-color--dark:  #ccb800;
+
+  /* Text that sits ON the primary color background — use black for contrast */
+  --md-primary-bg-color:        #000000;
+  --md-primary-bg-color--light: rgba(0, 0, 0, 0.70);
+}
+
+/* ---------- Accent / Secondary Color (Links, highlights, hover) ---------- */
+:root {
+  --md-accent-fg-color:              #000000;
+  --md-accent-fg-color--transparent: rgba(0, 0, 0, 0.10);
+  --md-accent-bg-color:              #FFE500;
+  --md-accent-bg-color--light:       rgba(255, 229, 0, 0.12);
+}
+
+/* ---------- Slate (dark mode) overrides ---------- */
+[data-md-color-scheme="slate"] {
+  --md-primary-fg-color:        #FFE500;
+  --md-primary-fg-color--light: #FFE500;
+  --md-primary-fg-color--dark:  #ccb800;
+  --md-primary-bg-color:        #000000;
+  --md-primary-bg-color--light: rgba(0, 0, 0, 0.70);
+
+  --md-accent-fg-color:              #FFE500;
+  --md-accent-fg-color--transparent: rgba(255, 229, 0, 0.10);
+}
+
+/* ---------- Navigation tabs active indicator ---------- */
+.md-tabs__link--active,
+.md-tabs__link:hover {
+  color: #000000 !important;
+}
+
+/* ---------- Sidebar active link ---------- */
+.md-nav__link--active {
+  color: #000000 !important;
+  font-weight: 700;
+}
+
+/* ---------- Inline code highlight ---------- */
+code {
+  color: #000000;
+  background-color: rgba(255, 229, 0, 0.15);
+}
+
+/* ---------- Search highlight ---------- */
+mark, .md-search-result__terms {
+  background-color: rgba(255, 229, 0, 0.40);
+  color: #000000;
+}
+
+/* ---------- Buttons / Footer ---------- */
+.md-footer {
+  background-color: #000000;
+}

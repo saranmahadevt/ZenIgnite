@@ -5,21 +5,8 @@ repo_url: https://github.com/saranmahadevt/ZenIgnite
 repo_name: ZenIgnite
 edit_uri: edit/main/
 
-docs_dir: .
+docs_dir: docs
 site_dir: _site
-
-exclude_docs: |
-  _site/**
-  .github/**
-  .git/**
-  .gitignore
-  **/node_modules/**
-  **/__pycache__/**
-  *.py
-  *.txt
-  *.db
-  *.sqlite
-  *.sqlite3
 
 theme:
   name: material
@@ -54,7 +41,7 @@ theme:
     repo: fontawesome/brands/github
 
 extra_css:
-  - .mkdocs-assets/stylesheets/extra.css
+  - stylesheets/extra.css
 
 extra:
   social:
