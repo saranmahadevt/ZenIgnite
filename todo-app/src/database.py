@@ -89,4 +89,13 @@ def db_connection(db_path: str = None):
     TODO (Person A): Implement this context manager.
     Hint: use try/except/finally with conn.commit() and conn.rollback().
     """
+    conn = get_connection(db_path)
+    try:
+        yield conn
+        conn.commit()
+    except Exception as e:
+        conn.rollback()
+        raise e
+    finally:
+        conn.close()
 
