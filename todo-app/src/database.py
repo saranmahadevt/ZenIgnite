@@ -59,6 +59,20 @@ def init_db(db_path: str = None) -> None:
     TODO (Person A): Implement this function using get_connection().
     Hint: Use CREATE TABLE IF NOT EXISTS.
     """
+    with get_connection(db_path) as conn:
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS todos (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                title TEXT NOT NULL,
+                description TEXT,
+                priority TEXT NOT NULL DEFAULT 'medium',
+                status TEXT NOT NULL DEFAULT 'pending',
+                due_date TEXT,
+                created_at TEXT NOT NULL,
+                updated_at TEXT NOT NULL
+            )
+        """)
+        conn.commit()
 
 
 
