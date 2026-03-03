@@ -42,6 +42,7 @@ class Todo:
     due_date: Optional[str] = None
     created_at: str = ""
     updated_at: str = ""
+    
 
     @classmethod
     def from_row(cls, row) -> "Todo":
@@ -51,12 +52,21 @@ class Todo:
         TODO (Person A): Implement this method.
         Hint: sqlite3.Row supports dict(row) or row["column_name"] access.
         """
-        raise NotImplementedError("Person A: implement Todo.from_row()")
+        try:
+            d = dict(row)
+            return cls(**d) 
+        except Exception as e:
+            raise ValueError(f"Error creating Todo from row: {e}")
 
     def __str__(self) -> str:
         """Human-readable string representation of a Todo."""
         # TODO (Person A): Return a nicely formatted string showing all fields.
-        raise NotImplementedError("Person A: implement Todo.__str__()")
+        try:
+            return (f"Todo(id={self.id}, title='{self.title}', description='{self.description}', "
+                    f"priority='{self.priority}', status='{self.status}', due_date='{self.due_date}', "
+                    f"created_at='{self.created_at}', updated_at='{self.updated_at}')")
+        except Exception as e:
+            raise NotImplementedError("Person A: implement Todo.__str__()")
 
 
 def validate_priority(priority: str) -> str:
