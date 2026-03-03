@@ -25,7 +25,7 @@ from contextlib import contextmanager
 # TODO (Person A): Set the path where the SQLite database file will be stored.
 # Hint: use os.path to build an absolute path relative to this file's location.
 # ---------------------------------------------------------------------------
-DB_PATH = None  # replace with actual path, e.g. os.path.join(os.path.dirname(__file__), "..", "todos.db")
+DB_PATH = os.path.join(os.path.dirname(__file__), "..", "todos.db")  # replace with actual path, e.g. os.path.join(os.path.dirname(__file__), "..", "todos.db")
 
 
 def get_connection(db_path: str = None) -> sqlite3.Connection:
@@ -36,7 +36,6 @@ def get_connection(db_path: str = None) -> sqlite3.Connection:
 
     TODO (Person A): Implement this function.
     """
-    raise NotImplementedError("Person A: implement get_connection()")
 
 
 def init_db(db_path: str = None) -> None:
@@ -56,7 +55,7 @@ def init_db(db_path: str = None) -> None:
     TODO (Person A): Implement this function using get_connection().
     Hint: Use CREATE TABLE IF NOT EXISTS.
     """
-    raise NotImplementedError("Person A: implement init_db()")
+
 
 
 @contextmanager
@@ -72,5 +71,4 @@ def db_connection(db_path: str = None):
     TODO (Person A): Implement this context manager.
     Hint: use try/except/finally with conn.commit() and conn.rollback().
     """
-    raise NotImplementedError("Person A: implement db_connection context manager")
-    yield  # noqa: unreachable — keep for syntax; remove after implementing
+
