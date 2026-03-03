@@ -36,6 +36,10 @@ def get_connection(db_path: str = None) -> sqlite3.Connection:
 
     TODO (Person A): Implement this function.
     """
+    path = db_path or DB_PATH
+    conn = sqlite3.connect(path)
+    conn.row_factory = sqlite3.Row
+    return conn
 
 
 def init_db(db_path: str = None) -> None:
