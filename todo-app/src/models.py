@@ -17,6 +17,7 @@ Git tasks for this file:
 """
 
 from dataclasses import dataclass, field
+import datetime
 from typing import Optional
 
 # ---------------------------------------------------------------------------
@@ -77,7 +78,10 @@ def validate_priority(priority: str) -> str:
 
     TODO (Person A): Implement this function.
     """
-    raise NotImplementedError("Person A: implement validate_priority()")
+    p = priority.strip().lower()
+    if p not in VALID_PRIORITIES:
+        raise ValueError(f"Invalid priority '{priority}'. Valid options: {VALID_PRIORITIES}")
+    return p
 
 
 def validate_status(status: str) -> str:
@@ -88,7 +92,10 @@ def validate_status(status: str) -> str:
 
     TODO (Person A): Implement this function.
     """
-    raise NotImplementedError("Person A: implement validate_status()")
+    s = status.strip().lower()
+    if s not in VALID_STATUSES:
+        raise ValueError(f"Invalid status '{status}'. Valid options: {VALID_STATUSES}")
+    return s
 
 
 def validate_due_date(due_date: Optional[str]) -> Optional[str]:
@@ -100,4 +107,10 @@ def validate_due_date(due_date: Optional[str]) -> Optional[str]:
     TODO (Person A): Implement this function.
     Hint: use datetime.datetime.strptime(due_date, "%Y-%m-%d")
     """
-    raise NotImplementedError("Person A: implement validate_due_date()")
+    if due_date is None:
+        return None
+    try:
+        datetime.datetime.strptime(due_date, "%Y-%m-%d")
+        return due_date
+    except ValueError:
+        raise ValueError(f"Invalid due_date '{due_date}'. Expected format: YYYY-MM-DD")
