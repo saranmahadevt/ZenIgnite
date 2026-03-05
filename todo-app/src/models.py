@@ -18,12 +18,13 @@ Git tasks for this file:
 
 from dataclasses import dataclass, field
 from typing import Optional
+import datetime
 
 # ---------------------------------------------------------------------------
 # TODO (Person A): Define valid values for priority and status fields.
 # ---------------------------------------------------------------------------
-VALID_PRIORITIES = []  # replace with: ["low", "medium", "high"]
-VALID_STATUSES = []    # replace with: ["pending", "in-progress", "done"]
+VALID_PRIORITIES = ["low", "medium", "high"]
+VALID_STATUSES = ["pending", "in-progress", "done"]
 
 
 @dataclass
