@@ -52,12 +52,16 @@ class Todo:
         TODO (Person A): Implement this method.
         Hint: sqlite3.Row supports dict(row) or row["column_name"] access.
         """
-        raise NotImplementedError("Person A: implement Todo.from_row()")
+        return cls(**dict(row))  # This assumes the row keys match the Todo fields exactly. Adjust if needed.
 
     def __str__(self) -> str:
         """Human-readable string representation of a Todo."""
-        # TODO (Person A): Return a nicely formatted string showing all fields.
-        raise NotImplementedError("Person A: implement Todo.__str__()")
+        return (
+            f"Todo(id={self.id}, title={self.title}, description={self.description}, "
+            f"priority={self.priority}, status={self.status}, due_date={self.due_date}, "
+            f"created_at={self.created_at}, updated_at={self.updated_at})"
+        )
+
 
 
 def validate_priority(priority: str) -> str:
@@ -68,7 +72,10 @@ def validate_priority(priority: str) -> str:
 
     TODO (Person A): Implement this function.
     """
-    raise NotImplementedError("Person A: implement validate_priority()")
+    if priority.lower() in VALID_PRIORITIES:
+        return priority.lower()
+    else:
+        raise ValueError(f"Invalid priority: '{priority}'. Valid options are: {VALID_PRIORITIES}")
 
 
 def validate_status(status: str) -> str:
@@ -79,7 +86,10 @@ def validate_status(status: str) -> str:
 
     TODO (Person A): Implement this function.
     """
-    raise NotImplementedError("Person A: implement validate_status()")
+    if status.lower() in VALID_STATUSES:
+        return status.lower()
+    else:
+        raise ValueError(f"Invalid status: '{status}'. Valid options are: {VALID_STATUSES}")
 
 
 def validate_due_date(due_date: Optional[str]) -> Optional[str]:
@@ -91,4 +101,11 @@ def validate_due_date(due_date: Optional[str]) -> Optional[str]:
     TODO (Person A): Implement this function.
     Hint: use datetime.datetime.strptime(due_date, "%Y-%m-%d")
     """
-    raise NotImplementedError("Person A: implement validate_due_date()")
+    if due_date is None or due_date == "":
+        return None
+    try:
+        # This will match the format and also check if it's a valid date (e.g. not 2024-02-30)
+        datetime.datetime.strptime(due_date, "%Y-%m-%d")
+        return due_date
+    except ValueError:
+        raise ValueError(f"Invalid due_date: '{due_date}'. Expected format: YYYY-MM-DD")
