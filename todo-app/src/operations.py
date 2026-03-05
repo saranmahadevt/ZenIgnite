@@ -25,12 +25,8 @@ Git tasks for this file:
 from datetime import datetime, timezone
 from typing import Optional, List
 
-# ---------------------------------------------------------------------------
-# TODO (Person B): Import from database and models once Person A's code
-# is merged. Until then, stub imports are provided below for reference.
-# ---------------------------------------------------------------------------
-# from database import db_connection
-# from models import Todo, validate_priority, validate_status, validate_due_date
+from database import db_connection
+from models import Todo, validate_priority, validate_status, validate_due_date
 
 
 def _now() -> str:
@@ -61,7 +57,27 @@ def add_todo(
     Returns:
         int: the id of the newly created todo
     """
-    raise NotImplementedError("Person B: implement add_todo()")
+    # Step 1: Validate title
+    if not title or not title.strip():
+        raise ValueError("Title cannot be empty.")
+    if len(title) > 100:
+        raise ValueError("Title must be 100 characters or fewer.")
+
+    # Step 2 & 3: Validate priority and due_date
+    priority = validate_priority(priority)
+    due_date = validate_due_date(due_date)
+
+    # Step 4: Insert into DB and return new id
+    now = _now()
+    with db_connection() as conn:
+        cursor = conn.execute(
+            """
+            INSERT INTO todos (title, description, priority, due_date, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?)
+            """,
+            (title.strip(), description, priority, due_date, now, now),
+        )
+        return cursor.lastrowid
 
 
 def get_todo(todo_id: int) -> Optional[object]:
@@ -73,7 +89,12 @@ def get_todo(todo_id: int) -> Optional[object]:
     Returns:
         Todo if found, None if not found
     """
-    raise NotImplementedError("Person B: implement get_todo()")
+    with db_connection() as conn:
+        row = conn.execute(
+            "SELECT * FROM todos WHERE id = ?",
+            (todo_id,),
+        ).fetchone()
+    return Todo.from_row(row) if row else None
 
 
 def list_todos(
@@ -92,7 +113,36 @@ def list_todos(
     Returns:
         List of Todo objects (may be empty)
     """
-    raise NotImplementedError("Person B: implement list_todos()")
+    # Validate filters if provided
+    if status is not None:
+        status = validate_status(status)
+    if priority is not None:
+        priority = validate_priority(priority)
+
+    # Build query dynamically based on filters
+    query = """
+        SELECT * FROM todos
+        {where}
+        ORDER BY
+            CASE priority WHEN 'high' THEN 1 WHEN 'medium' THEN 2 WHEN 'low' THEN 3 END,
+            created_at DESC
+    """
+    conditions = []
+    params = []
+
+    if status is not None:
+        conditions.append("status = ?")
+        params.append(status)
+    if priority is not None:
+        conditions.append("priority = ?")
+        params.append(priority)
+
+    where_clause = "WHERE " + " AND ".join(conditions) if conditions else ""
+    query = query.format(where=where_clause)
+
+    with db_connection() as conn:
+        rows = conn.execute(query, params).fetchall()
+    return [Todo.from_row(row) for row in rows]
 
 
 def update_todo(todo_id: int, **kwargs) -> bool:
@@ -115,7 +165,34 @@ def update_todo(todo_id: int, **kwargs) -> bool:
     Raises:
         ValueError: if an unknown field is provided or validation fails
     """
-    raise NotImplementedError("Person B: implement update_todo()")
+    ALLOWED_FIELDS = {"title", "description", "priority", "status", "due_date"}
+
+    # Step 1: Check todo exists
+    if get_todo(todo_id) is None:
+        return False
+
+    # Step 2: Validate fields
+    for key in kwargs:
+        if key not in ALLOWED_FIELDS:
+            raise ValueError(f"Unknown field: '{key}'")
+    if "priority" in kwargs:
+        kwargs["priority"] = validate_priority(kwargs["priority"])
+    if "status" in kwargs:
+        kwargs["status"] = validate_status(kwargs["status"])
+    if "due_date" in kwargs:
+        kwargs["due_date"] = validate_due_date(kwargs["due_date"])
+
+    # Step 3 & 4: Build and execute dynamic UPDATE query
+    kwargs["updated_at"] = _now()
+    set_clause = ", ".join(f"{key} = ?" for key in kwargs)
+    params = list(kwargs.values()) + [todo_id]
+
+    with db_connection() as conn:
+        conn.execute(
+            f"UPDATE todos SET {set_clause} WHERE id = ?",
+            params,
+        )
+    return True
 
 
 def delete_todo(todo_id: int) -> bool:
@@ -127,4 +204,9 @@ def delete_todo(todo_id: int) -> bool:
     Returns:
         True if the todo was found and deleted, False if not found
     """
-    raise NotImplementedError("Person B: implement delete_todo()")
+    if get_todo(todo_id) is None:
+        return False
+
+    with db_connection() as conn:
+        conn.execute("DELETE FROM todos WHERE id = ?", (todo_id,))
+    return True

@@ -25,7 +25,7 @@ from contextlib import contextmanager
 # TODO (Person A): Set the path where the SQLite database file will be stored.
 # Hint: use os.path to build an absolute path relative to this file's location.
 # ---------------------------------------------------------------------------
-DB_PATH = None  # replace with actual path, e.g. os.path.join(os.path.dirname(__file__), "..", "todos.db")
+DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "team08__database.db")  # replace with actual path, e.g. os.path.join(os.path.dirname(__file__), "..", "todos.db")
 
 
 def get_connection(db_path: str = None) -> sqlite3.Connection:
@@ -36,7 +36,11 @@ def get_connection(db_path: str = None) -> sqlite3.Connection:
 
     TODO (Person A): Implement this function.
     """
-    raise NotImplementedError("Person A: implement get_connection()")
+    if db_path is None:
+        db_path = DB_PATH
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
+    return conn
 
 
 def init_db(db_path: str = None) -> None:
@@ -56,7 +60,27 @@ def init_db(db_path: str = None) -> None:
     TODO (Person A): Implement this function using get_connection().
     Hint: Use CREATE TABLE IF NOT EXISTS.
     """
-    raise NotImplementedError("Person A: implement init_db()")
+     # We use our get_connection function to talk to the DB
+    conn = get_connection(db_path)
+
+    # The SQL command to create our table with the required columns
+    schema = """
+    CREATE TABLE IF NOT EXISTS todos (
+        id          INTEGER PRIMARY KEY AUTOINCREMENT,
+        title       TEXT NOT NULL,
+        description TEXT,
+        priority    TEXT NOT NULL DEFAULT 'medium',
+        status      TEXT NOT NULL DEFAULT 'pending',
+        due_date    TEXT,
+        created_at  TEXT NOT NULL,
+        updated_at  TEXT NOT NULL
+    );
+    """
+    # Execute the command to create the table
+    conn.execute(schema)
+    # Commit the changes and close the connection
+    conn.commit()
+    conn.close()
 
 
 @contextmanager
@@ -72,5 +96,16 @@ def db_connection(db_path: str = None):
     TODO (Person A): Implement this context manager.
     Hint: use try/except/finally with conn.commit() and conn.rollback().
     """
-    raise NotImplementedError("Person A: implement db_connection context manager")
-    yield  # noqa: unreachable — keep for syntax; remove after implementing
+    # We get a connection using our get_connection function
+    conn = get_connection(db_path)
+    try:
+        # We yield the connection to the block of code inside the 'with' statement
+        yield conn
+        conn.commit()
+    except Exception as e:
+        # If any exception occurs, we roll back the transaction to avoid partial updates
+        conn.rollback()
+        raise e
+    finally:
+        # Finally, we close the connection to free up resources
+        conn.close()
