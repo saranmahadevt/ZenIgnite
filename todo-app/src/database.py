@@ -60,7 +60,27 @@ def init_db(db_path: str = None) -> None:
     TODO (Person A): Implement this function using get_connection().
     Hint: Use CREATE TABLE IF NOT EXISTS.
     """
-    raise NotImplementedError("Person A: implement init_db()")
+     # We use our get_connection function to talk to the DB
+    conn = get_connection(db_path)
+
+    # The SQL command to create our table with the required columns
+    schema = """
+    CREATE TABLE IF NOT EXISTS todos (
+        id          INTEGER PRIMARY KEY AUTOINCREMENT,
+        title       TEXT NOT NULL,
+        description TEXT,
+        priority    TEXT NOT NULL DEFAULT 'medium',
+        status      TEXT NOT NULL DEFAULT 'pending',
+        due_date    TEXT,
+        created_at  TEXT NOT NULL,
+        updated_at  TEXT NOT NULL
+    );
+    """
+    # Execute the command to create the table
+    conn.execute(schema)
+    # Commit the changes and close the connection
+    conn.commit()
+    conn.close()
 
 
 @contextmanager
