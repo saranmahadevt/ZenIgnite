@@ -113,7 +113,36 @@ def list_todos(
     Returns:
         List of Todo objects (may be empty)
     """
-    raise NotImplementedError("Person B: implement list_todos()")
+    # Validate filters if provided
+    if status is not None:
+        status = validate_status(status)
+    if priority is not None:
+        priority = validate_priority(priority)
+
+    # Build query dynamically based on filters
+    query = """
+        SELECT * FROM todos
+        {where}
+        ORDER BY
+            CASE priority WHEN 'high' THEN 1 WHEN 'medium' THEN 2 WHEN 'low' THEN 3 END,
+            created_at DESC
+    """
+    conditions = []
+    params = []
+
+    if status is not None:
+        conditions.append("status = ?")
+        params.append(status)
+    if priority is not None:
+        conditions.append("priority = ?")
+        params.append(priority)
+
+    where_clause = "WHERE " + " AND ".join(conditions) if conditions else ""
+    query = query.format(where=where_clause)
+
+    with db_connection() as conn:
+        rows = conn.execute(query, params).fetchall()
+    return [Todo.from_row(row) for row in rows]
 
 
 def update_todo(todo_id: int, **kwargs) -> bool:
@@ -136,7 +165,34 @@ def update_todo(todo_id: int, **kwargs) -> bool:
     Raises:
         ValueError: if an unknown field is provided or validation fails
     """
-    raise NotImplementedError("Person B: implement update_todo()")
+    ALLOWED_FIELDS = {"title", "description", "priority", "status", "due_date"}
+
+    # Step 1: Check todo exists
+    if get_todo(todo_id) is None:
+        return False
+
+    # Step 2: Validate fields
+    for key in kwargs:
+        if key not in ALLOWED_FIELDS:
+            raise ValueError(f"Unknown field: '{key}'")
+    if "priority" in kwargs:
+        kwargs["priority"] = validate_priority(kwargs["priority"])
+    if "status" in kwargs:
+        kwargs["status"] = validate_status(kwargs["status"])
+    if "due_date" in kwargs:
+        kwargs["due_date"] = validate_due_date(kwargs["due_date"])
+
+    # Step 3 & 4: Build and execute dynamic UPDATE query
+    kwargs["updated_at"] = _now()
+    set_clause = ", ".join(f"{key} = ?" for key in kwargs)
+    params = list(kwargs.values()) + [todo_id]
+
+    with db_connection() as conn:
+        conn.execute(
+            f"UPDATE todos SET {set_clause} WHERE id = ?",
+            params,
+        )
+    return True
 
 
 def delete_todo(todo_id: int) -> bool:
