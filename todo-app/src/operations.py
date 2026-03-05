@@ -25,12 +25,8 @@ Git tasks for this file:
 from datetime import datetime, timezone
 from typing import Optional, List
 
-# ---------------------------------------------------------------------------
-# TODO (Person B): Import from database and models once Person A's code
-# is merged. Until then, stub imports are provided below for reference.
-# ---------------------------------------------------------------------------
-# from database import db_connection
-# from models import Todo, validate_priority, validate_status, validate_due_date
+from database import db_connection
+from models import Todo, validate_priority, validate_status, validate_due_date
 
 
 def _now() -> str:
@@ -61,7 +57,27 @@ def add_todo(
     Returns:
         int: the id of the newly created todo
     """
-    raise NotImplementedError("Person B: implement add_todo()")
+    # Step 1: Validate title
+    if not title or not title.strip():
+        raise ValueError("Title cannot be empty.")
+    if len(title) > 100:
+        raise ValueError("Title must be 100 characters or fewer.")
+
+    # Step 2 & 3: Validate priority and due_date
+    priority = validate_priority(priority)
+    due_date = validate_due_date(due_date)
+
+    # Step 4: Insert into DB and return new id
+    now = _now()
+    with db_connection() as conn:
+        cursor = conn.execute(
+            """
+            INSERT INTO todos (title, description, priority, due_date, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?)
+            """,
+            (title.strip(), description, priority, due_date, now, now),
+        )
+        return cursor.lastrowid
 
 
 def get_todo(todo_id: int) -> Optional[object]:
