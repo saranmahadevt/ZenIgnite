@@ -204,4 +204,9 @@ def delete_todo(todo_id: int) -> bool:
     Returns:
         True if the todo was found and deleted, False if not found
     """
-    raise NotImplementedError("Person B: implement delete_todo()")
+    if get_todo(todo_id) is None:
+        return False
+
+    with db_connection() as conn:
+        conn.execute("DELETE FROM todos WHERE id = ?", (todo_id,))
+    return True
