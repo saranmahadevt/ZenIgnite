@@ -89,7 +89,12 @@ def get_todo(todo_id: int) -> Optional[object]:
     Returns:
         Todo if found, None if not found
     """
-    raise NotImplementedError("Person B: implement get_todo()")
+    with db_connection() as conn:
+        row = conn.execute(
+            "SELECT * FROM todos WHERE id = ?",
+            (todo_id,),
+        ).fetchone()
+    return Todo.from_row(row) if row else None
 
 
 def list_todos(
