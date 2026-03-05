@@ -96,5 +96,16 @@ def db_connection(db_path: str = None):
     TODO (Person A): Implement this context manager.
     Hint: use try/except/finally with conn.commit() and conn.rollback().
     """
-    raise NotImplementedError("Person A: implement db_connection context manager")
-    yield  # noqa: unreachable — keep for syntax; remove after implementing
+    # We get a connection using our get_connection function
+    conn = get_connection(db_path)
+    try:
+        # We yield the connection to the block of code inside the 'with' statement
+        yield conn
+        conn.commit()
+    except Exception as e:
+        # If any exception occurs, we roll back the transaction to avoid partial updates
+        conn.rollback()
+        raise e
+    finally:
+        # Finally, we close the connection to free up resources
+        conn.close()
